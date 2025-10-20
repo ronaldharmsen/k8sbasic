@@ -1,0 +1,163 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  demo-app-1
+  namespace: default
+  labels:
+    app:  demo-app-1
+spec:
+  selector:
+    matchLabels:
+      app: demo-app-1
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app:  demo-app-1
+    spec:
+      containers:
+      - name:  demo-app-1
+        image: webapp:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 500Mi
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /_status/healthz
+            port: 8080
+          initialDelaySeconds: 5
+          timeoutSeconds: 2
+          successThreshold: 1
+          failureThreshold: 3
+          periodSeconds: 10
+        env:
+        - name: APPNAME
+          value: demo-app-1
+        - name: COLOR
+          value: green
+        ports:
+        - containerPort:  80
+          name:  demo-app-1
+        volumeMounts:
+        - name: localtime
+          mountPath: /etc/localtime
+      volumes:
+        - name: localtime
+          hostPath:
+            path: /usr/share/zoneinfo/Europe/Amsterdam
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-app-1
+  namespace: default
+spec:
+  selector:
+    app: demo-app-1
+  type: ClusterIP
+  ports:
+  - name: demo-app-1
+    protocol: TCP
+    port: 8080
+    targetPort: 8080 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  demo-app-2
+  namespace: default
+  labels:
+    app:  demo-app-2
+spec:
+  selector:
+    matchLabels:
+      app: demo-app-2
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app:  demo-app-2
+    spec:
+      containers:
+      - name:  demo-app-2
+        image: webapp:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 500Mi
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /_status/healthz
+            port: 8080
+          initialDelaySeconds: 5
+          timeoutSeconds: 2
+          successThreshold: 1
+          failureThreshold: 3
+          periodSeconds: 10
+        env:
+        - name: APPNAME
+          value: demo-app-2
+        - name: COLOR
+          value: lightblue
+        ports:
+        - containerPort:  80
+          name:  demo-app-2
+        volumeMounts:
+        - name: localtime
+          mountPath: /etc/localtime
+      volumes:
+        - name: localtime
+          hostPath:
+            path: /usr/share/zoneinfo/Europe/Amsterdam
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-app-2
+  namespace: default
+spec:
+  selector:
+    app: demo-app-2
+  type: ClusterIP
+  ports:
+  - name: demo-app-2
+    protocol: TCP
+    port: 8080
+    targetPort: 8080 
