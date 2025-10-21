@@ -10,3 +10,6 @@ This repo contains the lab work for the Kubernetes course.
 5. [Ingress](ingress/README.md)
 6. [Scaling](scaling/README.md)
 7. [(External) Helm lab](helm/README.md)
+
+
+[Slides](https://bit.ly/trd-k8s)
