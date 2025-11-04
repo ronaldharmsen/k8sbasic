@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-incluster
+spec:
+  imagePullSecrets:
+    - name: regcred
+  containers:
+  - name: nginx
+    image: localhost:32000/nginx:1.21
+    ports:
+    - containerPort: 80
