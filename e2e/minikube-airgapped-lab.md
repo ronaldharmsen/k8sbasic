@@ -1,6 +1,6 @@
 # Lab: Setting Up Kubernetes with In-Cluster Registry for Air-Gapped Practice
 
-This lab guides you through setting up Minikube on Docker Desktop, running a Docker registry inside your Kubernetes cluster, and configuring Minikube to use it. 
+This lab guides you through setting up Microk8s next to Docker Desktop, running a Docker registry inside your Kubernetes cluster, and configuring Microk8s to use it. 
 This setup allows practicing air-gapped workflows and later experimenting with Kubernetes in this way.
 
 ---
@@ -14,7 +14,7 @@ This setup allows practicing air-gapped workflows and later experimenting with K
 
 ## Architecture Overview
 
-Below is a Mermaid diagram showing the relationship between your in-cluster Docker registry and the Minikube Kubernetes cluster:
+Below is a Mermaid diagram showing the relationship between your in-cluster Docker registry and the Microk8s Kubernetes cluster:
 
 ```mermaid
 flowchart LR
