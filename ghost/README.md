@@ -276,3 +276,32 @@ spec:
 ```
 
 when you run above with Minikube run ```minikube tunnel``` to make ingress available on localhost
+---
+
+### Using Ingress with MicroK8s on Windows
+
+If you are running MicroK8s on a Windows machine, follow these extra steps to access Ghost via ingress:
+
+1. **Enable the ingress controller:**
+  ```
+  microk8s enable ingress
+  ```
+
+2. **Apply your `ingress.yaml` as described above.**
+
+3. **Find the IP address of your MicroK8s VM:**
+  ```
+  microk8s kubectl get nodes -o wide
+  ```
+  Look for the `INTERNAL-IP` of your node.
+
+4. **Edit your Windows `hosts` file:**
+  - Open `C:\Windows\System32\drivers\etc\hosts` as Administrator.
+  - Add a line like:
+    ```
+    <VM-IP>   ghost.localhost
+    ```
+    Replace `<VM-IP>` with the IP you found in the previous step.
+
+5. **Access Ghost:**
+  - Open your browser and go to: [http://ghost.localhost](http://ghost.localhost)
