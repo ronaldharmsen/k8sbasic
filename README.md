@@ -11,6 +11,7 @@ This repo contains the lab work for the Kubernetes course.
 6. [Scaling](scaling/README.md)
 7. [(External) Helm lab](helm/README.md)
 
-APPX. [E2E lab (work in progress)](e2e/minikube-airgapped-lab.md)
+APPX. [E2E lab - Private registry](e2e/minikube-airgapped-lab.md)
+APPX. [E2E lab - Keycloak (not fully verified)](keycloack-k8s-lab/README.md)
 
 [Slides](https://bit.ly/trd-k8s)

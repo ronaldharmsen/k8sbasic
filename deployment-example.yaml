@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  demo-deployment
+  namespace: default
+  labels:
+    app:  demo
+spec:
+  selector:
+    matchLabels:
+      app: demo
+  replicas: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app:  demo
+    spec:
+      containers:
+      - name:  demo-nginx
+        image:  nginx:1.29
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 300m
+            memory: 156Mi
+        ports:
+        - containerPort:  80
+          name:  demo
+      restartPolicy: Always
