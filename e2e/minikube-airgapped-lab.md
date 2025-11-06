@@ -1,6 +1,6 @@
-# Lab: Setting Up Minikube with In-Cluster Registry for Air-Gapped Practice
+# Lab: Setting Up Kubernetes with In-Cluster Registry for Air-Gapped Practice
 
-This lab guides you through setting up Minikube on Docker Desktop, running a Docker registry inside your Kubernetes cluster, and configuring Minikube to use it. 
+This lab guides you through setting up Microk8s next to Docker Desktop, running a Docker registry inside your Kubernetes cluster, and configuring Microk8s to use it. 
 This setup allows practicing air-gapped workflows and later experimenting with Kubernetes in this way.
 
 ---
@@ -14,7 +14,7 @@ This setup allows practicing air-gapped workflows and later experimenting with K
 
 ## Architecture Overview
 
-Below is a Mermaid diagram showing the relationship between your in-cluster Docker registry and the Minikube Kubernetes cluster:
+Below is a Mermaid diagram showing the relationship between your in-cluster Docker registry and the Microk8s Kubernetes cluster:
 
 ```mermaid
 flowchart LR
@@ -29,21 +29,12 @@ flowchart LR
 
 ---
 
+## Step 0: Install Microk8s if you haven't
+
+Install Microk8s with these steps: [https://microk8s.io/#install-microk8s](https://microk8s.io/#install-microk8s)
+** !Important! ** Only do the first 4 steps, which is basically installing Microk8s with multipass on your laptop. Do NOT do the step at nr 5 yet, as that will interfere with the lab! 
 
 ## Step 1: Check Microk8s setup
-
-You can check the new cluster by running 
-```sh
-kubectl get nodes
-```
-
-If this is not working, try this in Powershell
-```sh
-microk8s config > kubeconfig-microk8s.yaml
-$Env:KUBECONFIG=("$HOME\.kube\config;$HOME\kubeconfig-microk8s.yaml"); kubectl config view --flatten | Out-File "$HOME\.kube\config-combined"
-mv $HOME\.kube\config $HOME\.kube\config.old
-mv $HOME\.kube\config-combined $HOME\.kube\config
-```
 
 Then check your configuration in kubectl
 ```
@@ -57,9 +48,30 @@ CURRENT   NAME             CLUSTER            AUTHINFO         NAMESPACE
 *         microk8s         microk8s-cluster   admin
 ```
 
-If you don't have the microk8s cluster as current, use `kubectl config set-context microk8s` to switch.
+If you don't see microk8s as one of the contexts, try this in Powershell
+```sh
+microk8s config > kubeconfig-microk8s.yaml
+$Env:KUBECONFIG=("$HOME\.kube\config;$HOME\kubeconfig-microk8s.yaml"); kubectl config view --flatten | Out-File "$HOME\.kube\config-combined"
+mv $HOME\.kube\config $HOME\.kube\config.old
+mv $HOME\.kube\config-combined $HOME\.kube\config
+```
+
+Then check your configuration in kubectl again
+```
+kubectl config get-contexts
+```
+
+it should return something like this: 
+```
+CURRENT   NAME             CLUSTER            AUTHINFO         NAMESPACE
+          docker-desktop   docker-desktop     docker-desktop
+*         microk8s         microk8s-cluster   admin
+```
+
+If you don't have the microk8s cluster as current (marked by * in first column), use `kubectl config set-context microk8s` to switch.
 
 After that you can look at the nodes with `kubectl get nodes` to verify you're connected with Microk8s cluster
+
 ---
 
 ## Step 2: Deploy a Docker Registry Inside the Cluster
@@ -157,7 +169,8 @@ This will install a Docker container registry inside your cluster and expose it 
      "insecure-registries": ["<microk8s-ip>:32000"],
      ...
    ```
-   You must restart Docker-for-Desktop after this change to take effect!   
+   You must restart Docker-for-Desktop after this change to take effect!
+   
 ---
 
 ## Step 4: Deploy a Pod Using the In-Cluster Registry
@@ -197,7 +210,6 @@ That way you can run an airgapped system where images are used from the local re
 **!Important**
 There is no security enabled (yet) and as you've seen you have to jump some hoops because this is an unprotected http api. For production purposes you want to consider locking this down of course.
 
-
 ---
 
 ## Appendix: Securing the In-Cluster Registry with Authentication
@@ -206,9 +218,10 @@ To require authentication for your in-cluster Docker registry, follow these step
 
 ### 1. Create a htpasswd file
 
-Login to the actual VM running Microk8s. With the Windows installer from above that can be done by executing  `multipass list` to see which VMs where created.
+Login to the actual VM running Microk8s. When installed with the Microk8s installer for Windows as mentioned in step 0., you can use `multipass list` to see which VMs where created.
 
 Then use `multipass shell microk8s-vm` to ssh into that machine. (Replace microk8s-vm with the name of your VM if that differs)
+We are using the VM itself to have access to `htpasswd` as that is not available on Windows (or through some external install), the process is just simpler to use in Linux. MacOS has these tools already so you can skip to step 2.
 
 On your VM, use the `htpasswd` tool (from Apache or Docker) to create a password file:
 ```sh
@@ -219,7 +232,7 @@ You will be prompted to enter a password for `myuser`.
 
 ### 2. Create a Kubernetes secret from the htpasswd file
 
-Still inside the VM:
+Still inside the VM (we need access to the file just created):
 ```sh
 sudo microk8s kubectl create secret generic registry-auth-secret --from-file=htpasswd=registry-auth.htpasswd
 ```
